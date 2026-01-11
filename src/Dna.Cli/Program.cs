@@ -106,6 +106,12 @@ class Program
         Console.ForegroundColor = ConsoleColor.Green;
         Console.WriteLine($"✅ REPORT GENERATED SUCCESSFULLY!");
         Console.WriteLine($"👉 File: {reportPath}");
+        var p = new System.Diagnostics.Process();
+        p.StartInfo = new System.Diagnostics.ProcessStartInfo(reportPath)
+        {
+            UseShellExecute = true
+        };
+        p.Start();
         Console.ResetColor();
 
         Console.WriteLine("\nPress any key to exit...");
