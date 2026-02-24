@@ -73,6 +73,47 @@ public class XmlProjectAnalyzer : IProjectAnalyzer
                     });
                 }
             }
+            //NUEVO PARA LEER EL WEB.CONFIG, APP.CONFIG O APPSETTINGS.JSON
+            string[] targetConfigFiles = { "web.config", "app.config", "appsettings.json" };
+            foreach (var configName in targetConfigFiles)
+            {
+                string fullConfigPath = Path.Combine(projectDir, configName);
+                if (File.Exists(fullConfigPath))
+                {
+                    result.ConfigurationFiles[configName] = File.ReadAllText(fullConfigPath);
+                }
+            }
+            //NUEVO -- LEE CODIGO FUENTE PARA DETECTAR USOS DE PATRONES LEGACY PESADOS .CS
+            if (Directory.Exists(projectDir))
+            {
+                // Buscamos todos los archivos .cs de forma recursiva
+                var csFiles = Directory.GetFiles(projectDir, "*.cs", SearchOption.AllDirectories);
+                foreach (var file in csFiles)
+                {
+                    // Filtro
+                    if (file.Contains(Path.DirectorySeparatorChar + "obj" + Path.DirectorySeparatorChar) ||
+                        file.Contains(Path.DirectorySeparatorChar + "bin" + Path.DirectorySeparatorChar) ||
+                        file.EndsWith(".g.cs"))
+                        continue;
+
+                    var lines = File.ReadLines(file);
+                    int lineNum = 1;
+                    foreach (var line in lines)
+                    {
+                        // Detectamos patrones de arquitectura legacy pesada
+                        if (line.Contains("DataTable") || line.Contains("DataSet") || line.Contains("SqlDataAdapter"))
+                        {
+                            string fileName = Path.GetFileName(file);
+                            if (!result.SourceCodeFindings.ContainsKey(fileName))
+                                result.SourceCodeFindings[fileName] = new List<string>();
+
+                            result.SourceCodeFindings[fileName].Add($"L{lineNum}: {line.Trim()}");
+                        }
+                        lineNum++;
+                    }
+                }
+            }
+
         }
         catch (Exception ex)
         {

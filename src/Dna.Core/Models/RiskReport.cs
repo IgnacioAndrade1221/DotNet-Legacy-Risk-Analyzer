@@ -10,6 +10,7 @@ public class RiskReport
 public class  DetectedRisk
 {
     public string Code { get; set; } = string.Empty;
+    public RiskCategory Category { get; set; }
     public string Description { get; set; } = string.Empty;
     public Severity Level { get; set; }
     public string Recommendation { get; set; } = string.Empty;

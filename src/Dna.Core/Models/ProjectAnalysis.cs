@@ -11,6 +11,8 @@ public class ProjectAnalysis
     public bool IsSdkStyle { get; set; }
 
     public List<Dependency> Dependencies { get; set; } = new();
+    public Dictionary<string, string> ConfigurationFiles { get; set; } = new();
+    public Dictionary<string, List<string>> SourceCodeFindings { get; set; } = new();
 }
 
 public class Dependency
